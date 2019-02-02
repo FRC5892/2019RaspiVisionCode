@@ -221,89 +221,27 @@ public final class Main {
     }
 
     var table = ntinst.getTable("Vision");
-    var entryX = table.getEntry("x");
-    var entryY = table.getEntry("y");
-    var entryXDist = table.getEntry("xDist");
-    var entryYDist = table.getEntry("yDist");
-    var entryNumContours = table.getEntry("numContours");
-    var entryFlash = table.getEntry("flash");
 
-
-    var camera = cameras.get(0);
+    if (cameras.size() < 2) {
+      System.err.println("Haha, maybe actually plug in the cameras.");
+      return;
+    }
     /* THE ROOM WHERE IT HAPPENS */
     // start image processing on camera 0 if present
-    if (cameras.size() >= 1) {
-      VisionThread visionThread = new VisionThread(camera,
-              new GripPipeline(), pipeline -> {
-                var contours = pipeline.filterContoursOutput();
-                switch (contours.size()) {
-                  case 0:
-                    entryNumContours.setDouble(0);
-                    break;
-                  case 1:
-                    entryNumContours.setDouble(1);
-                    break;
-                  default:
-                    entryNumContours.setDouble(2);
-                    var con1 = contours.get(0);
-                    var con2 = contours.get(1);
-                    if (contours.size() > 2) {
-                      var area1 = Imgproc.contourArea(con1);
-                      var area2 = Imgproc.contourArea(con2);
-                      if (area2 > area1) {
-                        var cstore = con1;
-                        con1 = con2;
-                        con2 = cstore;
-                        var astore = area1;
-                        area1 = area2;
-                        area2 = astore;
-                      }
-                      MatOfPoint contour;
-                      double area;
-                      for (int i=2; i<contours.size(); i++) {
-                        contour = contours.get(i);
-                        area = Imgproc.contourArea(contour);
-                        if (area > area1) {
-                          area2 = area1;
-                          con2 = con1;
-                          area1 = area;
-                          con1 = contour;
-                        } else if (area > area2) {
-                          area2 = area;
-                          con2 = contour;
-                        }
-                      }
-                    }
-                    var bb1 = Imgproc.boundingRect(con1);
-                    var bb2 = Imgproc.boundingRect(con2);
-                    entryX.setDouble((bb1.x + bb2.x) / 2.0);
-                    entryY.setDouble((bb1.y + bb2.y) / 2.0);
-                    entryXDist.setDouble(Math.abs(bb1.x - bb2.x));
-                    entryYDist.setDouble(Math.abs(bb1.y - bb2.y));
-                }
-                entryFlash.setBoolean(!entryFlash.getBoolean(false));
-      });
-      /* something like this for GRIP:
-      VisionThread visionThread = new VisionThread(cameras.get(0),
-              new GripPipeline(), pipeline -> {
-        ...
-      });
-       */
-      visionThread.start();
-    }
-
-
-    var exposure = camera.getProperty("exposure_absolute");
-    var gain = camera.getProperty("gain");
-    var whiteBalance = camera.getProperty("white_balance_temperature");
+    var camL = cameras.get(0);
+    var camR = cameras.get(1);
+    new VisionThread(camL, new GripPipeline(), new PipelineListener(table.getSubTable("Left"), true));
+    new VisionThread(camR, new GripPipeline(), new PipelineListener(table.getSubTable("Right"), false));
+    
+    PropertyResetter[] resetters = {new PropertyResetter(camL), new PropertyResetter(camR)};
 
     // loop forever
     for (;;) {
       try {
         Thread.sleep(10000);
-        exposure.set(1);
-        gain.set(0);
-        whiteBalance.set(10000);
+        for (var r : resetters) {
+          r.reset();
+        }
       } catch (InterruptedException ex) {
         return;
       }
