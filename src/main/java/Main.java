@@ -223,15 +223,15 @@ public final class Main {
     var table = ntinst.getTable("Vision");
 
     if (cameras.size() < 2) {
-      System.err.println("Haha, maybe actually plug in the cameras.");
+      System.err.println("Haha, maybe actually set up the cameras.");
       return;
     }
     /* THE ROOM WHERE IT HAPPENS */
     // start image processing on camera 0 if present
     var camL = cameras.get(0);
     var camR = cameras.get(1);
-    new VisionThread(camL, new GripPipeline(), new PipelineListener(table.getSubTable("Left"), true));
-    new VisionThread(camR, new GripPipeline(), new PipelineListener(table.getSubTable("Right"), false));
+    new VisionThread(camL, new GripPipeline(), new PipelineListener(table.getSubTable("Left"), true)).start();
+    //new VisionThread(camR, new GripPipeline(), new PipelineListener(table.getSubTable("Right"), false)).start();
     
     PropertyResetter[] resetters = {new PropertyResetter(camL), new PropertyResetter(camR)};
 

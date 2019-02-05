@@ -40,9 +40,9 @@ public class GripPipeline implements VisionPipeline {
 	@Override	public void process(Mat source0) {
 		// Step HSL_Threshold0:
 		Mat hslThresholdInput = source0;
-		double[] hslThresholdHue = {54.9597610047555, 105.08623679071381};
-		double[] hslThresholdSaturation = {83.09377921391699, 255.0};
-		double[] hslThresholdLuminance = {38.46990204446612, 255.0};
+		double[] hslThresholdHue = {54.9597610047555, 94.33538354839298};
+		double[] hslThresholdSaturation = {103.73226842255008, 255.0};
+		double[] hslThresholdLuminance = {95.7990387351136, 255.0};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
 		// Step Find_Contours0:
@@ -156,12 +156,12 @@ public class GripPipeline implements VisionPipeline {
 		//operation
 		for (int i = 0; i < inputContours.size(); i++) {
 			final MatOfPoint contour = inputContours.get(i);
-			/*final Rect bb = Imgproc.boundingRect(contour);
+			final Rect bb = Imgproc.boundingRect(contour);
 			if (bb.width < minWidth || bb.width > maxWidth) continue;
-			if (bb.height < minHeight || bb.height > maxHeight) continue;*/
+			if (bb.height < minHeight || bb.height > maxHeight) continue;
 			final double area = Imgproc.contourArea(contour);
 			if (area < minArea) continue;
-			/*if (Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), true) < minPerimeter) continue;
+			if (Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), true) < minPerimeter) continue;
 			Imgproc.convexHull(contour, hull);
 			MatOfPoint mopHull = new MatOfPoint();
 			mopHull.create((int) hull.size().height, 1, CvType.CV_32SC2);
@@ -174,7 +174,7 @@ public class GripPipeline implements VisionPipeline {
 			if (solid < solidity[0] || solid > solidity[1]) continue;
 			if (contour.rows() < minVertexCount || contour.rows() > maxVertexCount)	continue;
 			final double ratio = bb.width / (double)bb.height;
-			if (ratio < minRatio || ratio > maxRatio) continue;*/
+			if (ratio < minRatio || ratio > maxRatio) continue;
 			output.add(contour);
 		}
 	}
