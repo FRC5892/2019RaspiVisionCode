@@ -222,18 +222,16 @@ public final class Main {
 
     var table = ntinst.getTable("Vision");
 
-    if (cameras.size() < 2) {
-      System.err.println("Haha, maybe actually set up the cameras.");
+    if (cameras.size() < 1) {
+      System.err.println("Haha, maybe actually set up the camera.");
       return;
     }
     /* THE ROOM WHERE IT HAPPENS */
     // start image processing on camera 0 if present
-    var camL = cameras.get(0);
-    var camR = cameras.get(1);
-    new VisionThread(camL, new GripPipeline(), new PipelineListener(table.getSubTable("Left"), true)).start();
-    //new VisionThread(camR, new GripPipeline(), new PipelineListener(table.getSubTable("Right"), false)).start();
+    var cam = cameras.get(0);
+    new VisionThread(cam, new GripPipeline(), new PipelineListener(table, true)).start();
     
-    PropertyResetter[] resetters = {new PropertyResetter(camL), new PropertyResetter(camR)};
+    PropertyResetter[] resetters = {new PropertyResetter(cam)};
 
     // loop forever
     for (;;) {

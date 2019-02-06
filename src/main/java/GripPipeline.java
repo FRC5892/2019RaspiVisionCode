@@ -1,10 +1,18 @@
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.google.gson.JsonParser;
+
 import java.util.HashMap;
 
 import edu.wpi.first.vision.VisionPipeline;
@@ -29,9 +37,27 @@ public class GripPipeline implements VisionPipeline {
 	private Mat hslThresholdOutput = new Mat();
 	private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
 	private ArrayList<MatOfPoint> filterContoursOutput = new ArrayList<MatOfPoint>();
+	
+	private double[] hslThresholdHue = {63.053286184611615, 95.87121972586739};
+	private double[] hslThresholdSaturation = {103.73226842255008, 255.0};
+	private double[] hslThresholdLuminance = {86.62637686460998, 255.0};
 
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	}
+
+	public GripPipeline() {
+		try {
+			var thresholds = new JsonParser().parse(new FileReader("/home/pi/thresholds.json")).getAsJsonObject().get("thresholds").getAsJsonObject();
+			var hueArr = thresholds.get("hue").getAsJsonArray();
+			hslThresholdHue = new double[]{hueArr.get(0).getAsDouble(), hueArr.get(1).getAsDouble()};
+			var satArr = thresholds.get("saturation").getAsJsonArray();
+			hslThresholdSaturation = new double[]{satArr.get(0).getAsDouble(), satArr.get(1).getAsDouble()};
+			var lumArr = thresholds.get("luminance").getAsJsonArray();
+			hslThresholdLuminance = new double[]{lumArr.get(0).getAsDouble(), lumArr.get(1).getAsDouble()};
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -40,9 +66,6 @@ public class GripPipeline implements VisionPipeline {
 	@Override	public void process(Mat source0) {
 		// Step HSL_Threshold0:
 		Mat hslThresholdInput = source0;
-		double[] hslThresholdHue = {63.053286184611615, 95.87121972586739};
-		double[] hslThresholdSaturation = {103.73226842255008, 255.0};
-		double[] hslThresholdLuminance = {86.62637686460998, 255.0};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
 		// Step Find_Contours0:
@@ -156,12 +179,12 @@ public class GripPipeline implements VisionPipeline {
 		//operation
 		for (int i = 0; i < inputContours.size(); i++) {
 			final MatOfPoint contour = inputContours.get(i);
-			final Rect bb = Imgproc.boundingRect(contour);
+			/*final Rect bb = Imgproc.boundingRect(contour);
 			if (bb.width < minWidth || bb.width > maxWidth) continue;
-			if (bb.height < minHeight || bb.height > maxHeight) continue;
+			if (bb.height < minHeight || bb.height > maxHeight) continue;*/
 			final double area = Imgproc.contourArea(contour);
 			if (area < minArea) continue;
-			if (Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), true) < minPerimeter) continue;
+			/*if (Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), true) < minPerimeter) continue;
 			Imgproc.convexHull(contour, hull);
 			MatOfPoint mopHull = new MatOfPoint();
 			mopHull.create((int) hull.size().height, 1, CvType.CV_32SC2);
@@ -174,7 +197,7 @@ public class GripPipeline implements VisionPipeline {
 			if (solid < solidity[0] || solid > solidity[1]) continue;
 			if (contour.rows() < minVertexCount || contour.rows() > maxVertexCount)	continue;
 			final double ratio = bb.width / (double)bb.height;
-			if (ratio < minRatio || ratio > maxRatio) continue;
+			if (ratio < minRatio || ratio > maxRatio) continue;*/
 			output.add(contour);
 		}
 	}

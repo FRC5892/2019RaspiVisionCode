@@ -1,1 +1,2 @@
 put build\libs\java-multiCameraServer-all.jar uploaded.jar
+put thresholds.json thresholds.json

@@ -1,0 +1,7 @@
+{
+    "thresholds": {
+        "hue": [63, 96],
+        "saturation": [104, 255],
+        "luminance": [87, 255]
+    }
+}
