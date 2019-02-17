@@ -25,8 +25,6 @@ import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
 
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 
 /*
    JSON format:
@@ -58,7 +56,7 @@ import org.opencv.imgproc.Imgproc;
 public final class Main {
   private static String configFile = "/boot/frc.json";
 
-  @SuppressWarnings("MemberName")
+  //@SuppressWarnings("MemberName")
   public static class CameraConfig {
     public String name;
     public String path;
@@ -110,7 +108,7 @@ public final class Main {
   /**
    * Read configuration file.
    */
-  @SuppressWarnings("PMD.CyclomaticComplexity")
+  //@SuppressWarnings("PMD.CyclomaticComplexity")
   public static boolean readConfig() {
     // parse file
     JsonElement top;

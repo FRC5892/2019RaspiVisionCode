@@ -1,13 +1,10 @@
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.vision.VisionRunner;
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
-// FIXME THE CAMERAS ARE CURRENTLY SIDEWAYS
-@SuppressWarnings("SuspiciousNameCombination")
 public class PipelineListener implements VisionRunner.Listener<GripPipeline> {
 
     private final NetworkTableEntry xCenter, yCenter, size, visible, flash;
@@ -76,8 +73,8 @@ public class PipelineListener implements VisionRunner.Listener<GripPipeline> {
     }
 
     private void putLeftmost(MatOfPoint contour1, MatOfPoint contour2) {
-        var x1 = Imgproc.boundingRect(contour1).y;
-        var x2 = Imgproc.boundingRect(contour2).y;
+        var x1 = Imgproc.boundingRect(contour1).x;
+        var x2 = Imgproc.boundingRect(contour2).x;
         if (x1 < x2 == preferLeft) {
             putContourData(contour1);
         } else {
@@ -87,8 +84,8 @@ public class PipelineListener implements VisionRunner.Listener<GripPipeline> {
 
     private void putContourData(MatOfPoint contour) {
         var bb = Imgproc.boundingRect(contour);
-        xCenter.setDouble(bb.y);
-        yCenter.setDouble(bb.x);
+        xCenter.setDouble(bb.x);
+        yCenter.setDouble(bb.y);
         size.setDouble(Imgproc.contourArea(contour));
     }
 
